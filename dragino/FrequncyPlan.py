@@ -17,14 +17,14 @@
 ###############################################################################
 
 #https://www.thethingsnetwork.org/wiki/LoRaWAN/Frequencies/Frequency-Plans
-CH1 = 868.1
-CH2 = 868.3
-CH3 = 868.5
-CH4 = 867.1
-CH5 = 867.3
-CH6 = 867.5
-CH7 = 867.7
-CH8 = 867.9
+CH1 = 916.8
+CH2 = 917.0
+CH3 = 917.2
+CH4 = 917.4
+CH5 = 917.6
+CH6 = 917.8
+CH7 = 918.0
+CH8 = 918.2
 
 #LORA_FREQS = (CH1, CH2, CH3, CH4, CH5, CH6, CH7, CH8)
 JOIN_FREQS = (CH1, CH2, CH3)
