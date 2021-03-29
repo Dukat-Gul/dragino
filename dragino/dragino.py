@@ -151,6 +151,11 @@ class Dragino(LoRa):
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
         self.set_invert_iq(1)
         self.reset_ptr_rx()
+        ##self.set_freq(LORA_FREQS.CH0)
+        self.set_freq(923.3)
+        self.set_spreading_factor(7)
+        self.set_bw(9)
+        self.set_rx_crc(False)
         self.set_mode(MODE.RXCONT)
 
 
