@@ -69,7 +69,6 @@ class Dragino(LoRa):
         self._read_frame_count()
         self.set_mode(MODE.SLEEP)
         self.set_dio_mapping([1, 0, 0, 0, 0, 0])
-        self.set_pa_config(pa_select=1)
         self.set_spreading_factor(self.config.spreading_factor)
         self.set_pa_config(
             max_power=self.config.max_power,
@@ -119,41 +118,57 @@ class Dragino(LoRa):
         """
             Callback on RX complete, signalled by I/O
         """
+	print("RxDone")
         self.logger.debug("Recieved message")
         self.clear_irq_flags(RxDone=1)
         payload = self.read_payload(nocheck=True)
+        print(payload)
+        self.set_mode(MODE.SLEEP)
+        self.get_all_registers()
+        print(self)
         lorawan = lorawan_msg([], self.appkey)
         lorawan.read(payload)
-        lorawan.get_payload()
-#        print(lorawan.get_mhdr().get_mversion())
+        print(lorawan.get_payload())
+##        lorawan.get_payload()
+        print(lorawan.get_mhdr().get_mversion())
         if lorawan.get_mhdr().get_mtype() == MHDR.JOIN_ACCEPT:
+            print("Got LoRaWAN join accept. Paste these values into keys.py")
             self.logger.debug("Join resp")
             #It's a response to a join request
             lorawan.valid_mic()
+            print(lorawan.valid_mic())
             self.device_addr = lorawan.get_devaddr()
             self.logger.info("Device: %s", self.device_addr)
             self.network_key = lorawan.derive_nwskey(self.devnonce)
             self.logger.info("Network key: %s", self.network_key)
             self.apps_key = lorawan.derive_appskey(self.devnonce)
             self.logger.info("APPS key: %s", self.apps_key)
+            print("devaddr = {}".format(lorawan.get_devaddr()))
+            print("nwskey = {}".format(lorawan.derive_nwskey(devnonce)))
+            print("appskey = {}".format(lorawan.derive_appskey(devnonce)))
             self.frame_count = 1
             self.config.save_credentials(
                 self.device_addr, self.network_key,
                 self.apps_key, self.frame_count)
+            print("\n")
+            sys.exit(0)
+        print("Got LoRaWAN message continue listen for join accept")
 
     def on_tx_done(self):
         """
             Callback on TX complete is signaled using I/O
         """
+
         self.logger.debug("TX Complete")
         self.clear_irq_flags(TxDone=1)
+        print("TxDone")
         self.set_mode(MODE.STDBY)
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
         self.set_invert_iq(1)
         self.reset_ptr_rx()
         ##self.set_freq(LORA_FREQS.CH0)
         self.set_freq(923.3)
-        self.set_spreading_factor(7)
+        self.set_spreading_factor(9)
         self.set_bw(9)
         self.set_rx_crc(False)
         self.set_mode(MODE.RXCONT)
@@ -187,6 +202,7 @@ class Dragino(LoRa):
                     {'deveui': deveui, 'appeui': appeui, 'devnonce': self.devnonce})
                 self.write_payload(lorawan.to_raw())
                 self.set_mode(MODE.TX)
+	        sleep(10)	
         else:
             self.logger.error("Unknown auth mode")
             return
